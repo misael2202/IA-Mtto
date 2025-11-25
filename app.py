@@ -20,7 +20,7 @@ if uploaded_file and hf_token:
     pdf_reader = PdfReader(uploaded_file)
     text = ""
     for page in pdf_reader.pages:
-        text += page.extract_text()
+        text += page.extract_text() or ""
 
     st.success("Texto extraído ✅")
 
@@ -30,25 +30,32 @@ if uploaded_file and hf_token:
 
     if question:
         with st.spinner("Consultando IA..."):
-            prompt = f"Responde la siguiente pregunta usando el texto del manual:\n\nTexto:\n{text}\n\nPregunta:\n{question}"
+            prompt = f"Responde la siguiente pregunta usando el texto del manual:\n\nTexto:\n{text[:4000]}\n\nPregunta:\n{question}"
             headers = {"Authorization": f"Bearer {hf_token}"}
             payload = {
                 "inputs": prompt,
                 "parameters": {"max_new_tokens": 500, "temperature": 0.2}
             }
 
-            # Endpoint actualizado con modelo activo
+            # Modelo gratuito activo
             response = requests.post(
-                "https://api-inference.huggingface.co/models/google/gemma-7b-it",
+                "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
                 headers=headers,
                 json=payload
             )
 
             if response.status_code == 200:
                 try:
-                    answer = response.json()[0]["generated_text"]
+                    data = response.json()
+                    # Ajuste dinámico según estructura
+                    if isinstance(data, list) and "generated_text" in data[0]:
+                        answer = data[0]["generated_text"]
+                    elif "generated_text" in data:
+                        answer = data["generated_text"]
+                    else:
+                        answer = str(data)
                     st.write("**Respuesta:**", answer)
-                except Exception:
-                    st.error("Error al procesar la respuesta del modelo.")
+                except Exception as e:
+                    st.error(f"Error al procesar la respuesta: {e}")
             else:
-                st.error(f"Error en la API: {response.status_code}")
+                st.error(f"Error en la API: {response.status_code} - {response.text}")
