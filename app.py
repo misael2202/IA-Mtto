@@ -35,10 +35,10 @@ if uploaded_file and hf_token:
                 "parameters": {"max_new_tokens": 500, "temperature": 0.2}
             }
             response = requests.post(
-                "https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct",
-                headers=headers,
-                json=payload
-            )
+    "https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct",
+    headers=headers,
+    json=payload
+)
             if response.status_code == 200:
                 answer = response.json()[0]["generated_text"]
                 st.write("**Respuesta:**", answer)
