@@ -35,7 +35,7 @@ if uploaded_file and hf_token:
                 "parameters": {"max_new_tokens": 500, "temperature": 0.2}
             }
             response = requests.post(
-                "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
+                "https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct",
                 headers=headers,
                 json=payload
             )
